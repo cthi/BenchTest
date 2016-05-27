@@ -1,0 +1,28 @@
+{
+  "name": "bench_test",
+  "version": "1.0.0",
+  "description": "yay transactions",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src/ -d build",
+    "start": "node build/index.js",
+    "go": "babel src/ -d build | node build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cthi/BenchTest.git"
+  },
+  "author": "Chris Thi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cthi/BenchTest/issues"
+  },
+  "homepage": "https://github.com/cthi/BenchTest#readme",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0"
+  },
+  "dependencies": {
+    "lodash": "^4.13.1"
+  }
+}
