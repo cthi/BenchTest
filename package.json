@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "babel src/ -d build",
-    "start": "node build/index.js",
-    "go": "babel src/ -d build | node build/index.js"
+    "start": "node build/index.js"
   },
   "repository": {
     "type": "git",

@@ -104,7 +104,7 @@ getTransactions((error, result) => {
     });
     console.log("");
 
-    var [uniq, dupes] = dedupe(data);
+    var [uniq, dupes] = dedupe(result);
     console.log(`Found ${_.size(dupes)} duplicates`)
     console.log("");
     _.forEach(dupes, (item) => {
