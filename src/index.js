@@ -2,7 +2,6 @@
 
 let _ = require('lodash');
 let request = require('request');
-let data = require('./data');
 
 function getTransactions(cb, page = 1, transactions = []) {
   request(`http://resttest.bench.co/transactions/${page}.json`, (error, res, body) => {
@@ -32,8 +31,27 @@ function getTotalPayments(transactions) {
   return _(transactions).map(a => parseFloat(a.Amount)).filter(a => a > 0).sum();
 }
 
+// Didn't do #1, but good candidate would be Google Maps API
+function prettifyName(name) {
+}
+
+function dedupe(transactions) {
+  let uniq = [];
+  let dupes = []; 
+
+  _.forEach(transactions, (item) => {
+    if (!_.find(uniq, u => _.isEqual(u, item))){
+      uniq.push(item);
+    } else {
+      dupes.push(item);
+    }
+  });  
+
+  return [uniq, dupes];
+}
+
 function getExpenseCategories(transactions) {
-  var categories = {};
+  let categories = {};
 
   _.forEach(transactions, (item) => {
     if (!categories[item.Ledger]) {
@@ -46,38 +64,62 @@ function getExpenseCategories(transactions) {
   return categories;
 }
 
-// Didn't do #1, but good candidate would be Google Maps API
-function prettifyName(name) {
+function getDailyBalances(transactions) {
+  let dates = {};
+  let total = 0;
+
+  _.forEach(transactions, (item) => {
+    if (!dates[item.Date]) {
+      dates[item.Date] = 0;
+    }
+    dates[item.Date] += parseFloat(item.Amount);
+  });
+  
+  dates = 
+    _(dates)
+    .map((val, key) => ({date : key, balance : val }))
+    .sortBy(date => date.date)
+    .map(date => {
+      total += date.balance;
+      return {date : date.date, balance : total };
+    }).value();
+  
+  return dates;
 }
 
-/*
 getTransactions((error, result) => {
   if (!error) {
-    console.log("Total Balance: $" + getTotalBalance(result));
-    console.log("Total Expenses: $" + getTotalExpenses(result));
-    console.log("Total Payments: $" + getTotalPayments(result));
+    console.log(`Total Balance: $${getTotalBalance(result).toFixed(2)}`);
+    console.log(`Total Expenses: $${getTotalExpenses(result).toFixed(2)}`);
+    console.log(`Total Payments: $${getTotalPayments(result).toFixed(2)}`);
+    console.log("");
 
     _.forEach(getExpenseCategories(result), (transactions, category) => {
-      console.log("Category: " + category);
+      console.log(`Category: ${category}`);
       _.forEach(transactions, (item) => {
         console.log("  " + item.Company);
       });
-      console.log("Total: $" + getTotalBalance(transactions));
+      console.log(`Total: $${getTotalBalance(transactions).toFixed(2)}`);
+      console.log("");
+    });
+    console.log("");
+
+    var [uniq, dupes] = dedupe(data);
+    console.log(`Found ${_.size(dupes)} duplicates`)
+    console.log("");
+    _.forEach(dupes, (item) => {
+      console.log(`Date: ${item.Date}`);
+      console.log(`Ledger: ${item.Ledger}`);
+      console.log(`Amount: $${item.Amount}`);
+      console.log(`Company: ${item.Company}`);
+      console.log("");
+    });
+    
+    console.log("Daily Balance");
+    _.forEach(getDailyBalances(result), (date) => {
+      console.log(`${date.date} - $${date.balance.toFixed(2)}`);
     });
   } else {
     console.log('Error fetching data.');
   }
 });
-*/
-    console.log("Total Balance: $" + getTotalBalance(data));
-    console.log("Total Expenses: $" + getTotalExpenses(data));
-    console.log("Total Payments: $" + getTotalPayments(data));
-    console.log("");
-    console.log(data);
-    _.forEach(getExpenseCategories(data), (transactions, category) => {
-      console.log("Category: " + category);
-      _.forEach(transactions, (item) => {
-        console.log("  " + item.Company);
-      });
-      console.log("  Total: $" + getTotalExpenses(transactions));
-    });
